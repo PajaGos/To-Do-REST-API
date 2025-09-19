@@ -1,0 +1,10 @@
+﻿services:
+  todoapi:
+    build: .
+    ports:
+      - "5000:5000"
+      - "5001:5001"
+    environment:
+      - DOTNET_ENVIRONMENT=Development
+    volumes:
+      - ./todo.db:/app/todo.db
