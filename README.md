@@ -1,10 +1,6 @@
----
-
 # TodoApi
 
-> A simple REST API for managing TODO tasks, built with ASP.NET Core, EF Core, and Docker.
-
----
+A simple REST API for managing TODO tasks, built with ASP.NET Core, EF Core, and Docker.
 
 ## Table of Contents
 
