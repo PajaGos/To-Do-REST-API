@@ -42,19 +42,15 @@ namespace TodoApi.Controllers
                 return BadRequest();
             }
             
-            _context.Entry(updatedTask).State = EntityState.Modified;
-            try
+            var existingTask = await _context.Tasks.FirstOrDefaultAsync(t => t.Id == id);
+            if (existingTask == null)
             {
-                await _context.SaveChangesAsync();
+                return NotFound();
             }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_context.Tasks.Any(t => t.Id == id))
-                {
-                    return NotFound();
-                }
-                throw;
-            }
+            
+            existingTask.UpdateFrom(updatedTask);
+
+            await _context.SaveChangesAsync();
             return NoContent();
         }
 
