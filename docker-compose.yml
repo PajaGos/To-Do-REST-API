@@ -2,9 +2,9 @@
   todoapi:
     build: .
     ports:
-      - "5000:5000"
-      - "5001:5001"
+      - "5050:80"
     environment:
       - DOTNET_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
     volumes:
-      - ./todo.db:/app/todo.db
+      - ./data:/app/data

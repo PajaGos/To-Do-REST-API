@@ -24,14 +24,18 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
+// Ensure database is created and apply any pending migrations
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ToDoContext>();
+    db.Database.Migrate();
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger(); // add middleware to provide generated OpenAPI specification as a JSON endpoint
     app.UseSwaggerUI(); // add Swagger UI
 }
-
-// redirect HTTP requests to HTTPS
-app.UseHttpsRedirection();
 
 // map controller to be able to route HTTP requests to proper controller
 app.MapControllers();
