@@ -48,7 +48,8 @@ namespace TodoApi.Controllers
             {
                 return NotFound();
             }
-            
+
+            existingUser.UpdateFrom(user);
             await _context.SaveChangesAsync();
 
             return NoContent();
