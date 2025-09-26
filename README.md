@@ -103,15 +103,25 @@ docker compose up --build
 ## API Documentation
 
 * Swagger UI is available at `/swagger/index.html`
-* Endpoints:
+* Tasks Endpoints:
 
-| Method | Endpoint       | Description          |
-| ------ | -------------- | -------------------- |
-| GET    | /api/todo      | Get all tasks        |
-| GET    | /api/todo/{id} | Get task by ID       |
-| POST   | /api/todo      | Create new task      |
-| PUT    | /api/todo/{id} | Update existing task |
-| DELETE | /api/todo/{id} | Delete task          |
+| Method | Endpoint    | Description          |
+| ------ |-------------| -------------------- |
+| GET    | /tasks      | Get all tasks        |
+| GET    | /tasks/{id} | Get task by ID       |
+| POST   | /tasks/     | Create new task      |
+| PUT    | /tasks/{id} | Update existing task |
+| DELETE | /tasks/{id} | Delete task          |
+
+* User Endpoints:
+
+| Method | Endpoint    | Description          |
+| ------ |-------------| -------------------- |
+| GET    | /users      | Get all users        |
+| GET    | /users/{id} | Get user by ID       |
+| POST   | /users/     | Create new user      |
+| PUT    | /users/{id} | Update existing user |
+| DELETE | /users/{id} | Delete user          |
 
 ---
 
