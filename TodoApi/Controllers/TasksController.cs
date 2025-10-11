@@ -17,9 +17,10 @@ namespace TodoApi.Controllers
         }
         
         [HttpGet]
-        public async Task<IActionResult> Get([FromQuery] int? userId, [FromQuery] string? category)
+        public async Task<ActionResult<IEnumerable<TaskItem>>> Get([FromQuery] int? userId, [FromQuery] string? category)
         {
             var query = _context.Tasks
+                .AsNoTracking()
                 .Include(t => t.TaskCategories)
                 .ThenInclude(tc => tc.Category)
                 .AsQueryable();
@@ -35,13 +36,14 @@ namespace TodoApi.Controllers
             }
 
             var tasks = await query.ToListAsync();
-            return Ok(tasks);
+            return tasks;
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<TaskItem>> GetById(int id)
         {
             var task = await _context.Tasks
+                .AsNoTracking()
                 .Include(t => t.TaskCategories)
                 .ThenInclude(tc => tc.Category)
                 .FirstOrDefaultAsync(t => t.Id == id);

@@ -73,6 +73,7 @@ namespace TodoApi.Controllers
         public async Task<IActionResult> GetTasksForUser(int id)
         {
             var user = await _context.Users
+                .AsNoTracking()
                 .Include(u => u.Tasks)
                 .ThenInclude(t => t.TaskCategories)
                 .ThenInclude(tc => tc.Category)
