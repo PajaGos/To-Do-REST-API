@@ -45,7 +45,8 @@ public class TasksControllerTests : IAsyncLifetime
 
         // Assert
         var actionResult = Assert.IsType<ActionResult<IEnumerable<TaskItem>>>(result);
-        var returnValue = Assert.IsType<List<TaskItem>>(actionResult.Value);
+        var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
+        var returnValue = Assert.IsType<List<TaskItem>>(okResult.Value);
         Assert.Equal(tasks.Count, returnValue.Count);
     }
     
@@ -62,7 +63,8 @@ public class TasksControllerTests : IAsyncLifetime
 
         // Assert
         var actionResult = Assert.IsType<ActionResult<TaskItem>>(result);
-        var returnValue = Assert.IsType<TaskItem>(actionResult.Value);
+        var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
+        var returnValue = Assert.IsType<TaskItem>(okResult.Value);
         Assert.Equal(expectedTask.Id, returnValue.Id);
     }
     

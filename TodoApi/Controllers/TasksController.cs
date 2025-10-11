@@ -36,7 +36,7 @@ namespace TodoApi.Controllers
             }
 
             var tasks = await query.ToListAsync();
-            return tasks;
+            return Ok(tasks);
         }
 
         [HttpGet("{id}")]
@@ -48,7 +48,7 @@ namespace TodoApi.Controllers
                 .ThenInclude(tc => tc.Category)
                 .FirstOrDefaultAsync(t => t.Id == id);
             
-            return task == null ? NotFound() : task;
+            return task == null ? NotFound() : Ok(task);
         }
 
         [HttpPost]
