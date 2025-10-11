@@ -17,7 +17,7 @@ namespace TodoApi.Controllers
         }
         
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetAll() => await _context.Users.ToListAsync();
+        public async Task<ActionResult<IEnumerable<User>>> GetAll() => await _context.Users.AsNoTracking().ToListAsync();
         
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetById(int id)
