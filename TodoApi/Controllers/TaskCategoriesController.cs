@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TodoApi.Data;
+using TodoApi.Mappers;
 using TodoApi.Models;
 
 namespace TodoApi.Controllers
@@ -30,19 +31,14 @@ namespace TodoApi.Controllers
                 return NotFound();
             }
 
-            return Ok(task.TaskCategories.Select(tc => new
-            {
-                tc.CategoryId,
-                tc.Category.Name,
-                tc.AssignedAt
-            }));
+            return Ok(task.TaskCategories.Select(tc => tc.ToDto().Category));
         }
 
         [HttpPost("{id}")]
-        public async Task<IActionResult> AssignCategory(int taskId, int categoryId)
+        public async Task<IActionResult> AssignCategory(int taskId, int id)
         {
             var exists = await _context.TaskCategories
-                .AnyAsync(tc => tc.TaskId == taskId && tc.CategoryId == categoryId);
+                .AnyAsync(tc => tc.TaskId == taskId && tc.CategoryId == id);
 
             if (exists)
             {
@@ -52,8 +48,7 @@ namespace TodoApi.Controllers
             _context.TaskCategories.Add(new TaskCategory
             {
                 TaskId = taskId,
-                CategoryId = categoryId,
-                AssignedAt = DateTime.UtcNow
+                CategoryId = id,
             });
 
             await _context.SaveChangesAsync();
@@ -61,10 +56,10 @@ namespace TodoApi.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> RemoveCategory(int taskId, int categoryId)
+        public async Task<IActionResult> RemoveCategory(int taskId, int id)
         {
             var link = await _context.TaskCategories
-                .FirstOrDefaultAsync(tc => tc.TaskId == taskId && tc.CategoryId == categoryId);
+                .FirstOrDefaultAsync(tc => tc.TaskId == taskId && tc.CategoryId == id);
 
             if (link == null)
             {

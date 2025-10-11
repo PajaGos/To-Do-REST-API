@@ -5,19 +5,7 @@ namespace TodoApi.Models
         public int Id { get; set; }
         public string UserName { get; set; }
         public string Email { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public List<TaskItem> Tasks { get; set; }
-        
-        public void UpdateFrom(User user)
-        {
-            if (user == null)
-            {
-                return;
-            }
-            
-            UserName = user.UserName;
-            Email = user.Email;
-            Tasks = user.Tasks;
-        }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public List<TaskItem> Tasks { get; set; } = new();
     }
 }

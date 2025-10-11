@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TodoApi.Data;
+using TodoApi.DTOs.Category;
+using TodoApi.Mappers;
 using TodoApi.Models;
 
 [ApiController]
@@ -19,6 +21,7 @@ public class CategoriesController : ControllerBase
     {
         var categories = await _context.Categories
             .AsNoTracking()
+            .Select(x => x.ToDto())
             .ToListAsync();
 
         return Ok(categories);
@@ -36,7 +39,7 @@ public class CategoriesController : ControllerBase
             return NotFound();
         }
         
-        return Ok(category);
+        return Ok(category.ToDto());
     }
     
     [HttpGet("{id}/tasks")]
@@ -53,34 +56,40 @@ public class CategoriesController : ControllerBase
             return NotFound();
         }
 
-        var tasks = category.TaskCategories.Select(tc => new
-        {
-            tc.Task.Id,
-            tc.Task.Title,
-            tc.Task.IsCompleted,
-            tc.Task.Description,
-            tc.Task.Priority,
-            tc.Task.DueDate,
-        });
-
+        var tasks = category.TaskCategories.Select(tc => tc.ToDto());
         return Ok(tasks);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(Category category)
+    public async Task<IActionResult> Create(CategoryCreateDto dto)
     {
+        // Check that the user exists
+        var userExists = await _context.Users.AnyAsync(u => u.Id == dto.UserId);
+        if (!userExists)
+        {
+            return BadRequest($"User with ID {dto.UserId} does not exist.");
+        }
+        
+        var categoryExists = await _context.Categories.AnyAsync(u => u.Name == dto.Name);
+        if (categoryExists)
+        {
+            return Conflict($"Category with name {dto.Name} already exists.");
+        }
+        
+        var category = dto.ToEntity();
         _context.Categories.Add(category);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(GetById), new { id = category.Id }, category);
+        return CreatedAtAction(nameof(GetById), new { id = category.Id }, category.ToDto());
     }
     
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, Category updateCategory)
+    public async Task<IActionResult> Update(int id, CategoryUpdateDto dto)
     {
-        if (id != updateCategory.Id)
+        var categoryExists = await _context.Categories.AnyAsync(u => u.Name == dto.Name);
+        if (!categoryExists)
         {
-            return BadRequest();
+            return Conflict($"Category with name {dto.Name} already exists.");
         }
             
         var existingCategory = await _context.Categories.FirstOrDefaultAsync(t => t.Id == id);
@@ -89,7 +98,7 @@ public class CategoriesController : ControllerBase
             return NotFound();
         }
             
-        existingCategory.UpdateFrom(updateCategory);
+        existingCategory.UpdateFromDto(dto);
 
         await _context.SaveChangesAsync();
         return NoContent();
