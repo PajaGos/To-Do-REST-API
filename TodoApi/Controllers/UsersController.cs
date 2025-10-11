@@ -15,7 +15,7 @@ namespace TodoApi.Controllers
         {
             _context = context;
         }
-        
+
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetAll() => await _context.Users.AsNoTracking().ToListAsync();
         
@@ -67,6 +67,34 @@ namespace TodoApi.Controllers
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
             return NoContent();
+        }
+        
+        [HttpGet("{id}/tasks")]
+        public async Task<IActionResult> GetTasksForUser(int id)
+        {
+            var user = await _context.Users
+                .Include(u => u.Tasks)
+                .ThenInclude(t => t.TaskCategories)
+                .ThenInclude(tc => tc.Category)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var tasks = user.Tasks.Select(t => new
+            {
+                t.Id,
+                t.Title,
+                t.IsCompleted,
+                t.Description,
+                t.Priority,
+                t.DueDate,
+                Categories = t.TaskCategories.Select(tc => new { tc.CategoryId, tc.Category.Name })
+            });
+
+            return Ok(tasks);
         }
     }
 }
