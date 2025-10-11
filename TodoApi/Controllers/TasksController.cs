@@ -15,6 +15,28 @@ namespace TodoApi.Controllers
         {
             _context = context;
         }
+        
+        [HttpGet]
+        public async Task<IActionResult> Get([FromQuery] int? userId, [FromQuery] string? category)
+        {
+            var query = _context.Tasks
+                .Include(t => t.TaskCategories)
+                .ThenInclude(tc => tc.Category)
+                .AsQueryable();
+
+            if (userId.HasValue)
+            {
+                query = query.Where(t => t.UserId == userId.Value);
+            }
+
+            if (!string.IsNullOrEmpty(category))
+            {
+                query = query.Where(t => t.TaskCategories.Any(tc => tc.Category.Name == category));
+            }
+
+            var tasks = await query.ToListAsync();
+            return Ok(tasks);
+        }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<TaskItem>> GetById(int id)
@@ -70,28 +92,6 @@ namespace TodoApi.Controllers
             _context.Tasks.Remove(task);
             await _context.SaveChangesAsync();
             return NoContent();
-        }
-        
-        [HttpGet]
-        public async Task<IActionResult> Get([FromQuery] int? userId, [FromQuery] string? category)
-        {
-            var query = _context.Tasks
-                .Include(t => t.TaskCategories)
-                .ThenInclude(tc => tc.Category)
-                .AsQueryable();
-
-            if (userId.HasValue)
-            {
-                query = query.Where(t => t.UserId == userId.Value);
-            }
-
-            if (!string.IsNullOrEmpty(category))
-            {
-                query = query.Where(t => t.TaskCategories.Any(tc => tc.Category.Name == category));
-            }
-
-            var tasks = await query.ToListAsync();
-            return Ok(tasks);
         }
     }
 }
