@@ -17,13 +17,45 @@ namespace TodoApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetAll() => await _context.Users.AsNoTracking().ToListAsync();
+        public async Task<ActionResult<IEnumerable<User>>> GetAll()
+        {
+            return Ok(await _context.Users.AsNoTracking().ToListAsync());
+        }
         
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetById(int id)
         {
             var user = await _context.Users.FindAsync(id);
-            return user == null ? NotFound() : user;
+            return user == null ? NotFound() : Ok(user);
+        }
+        
+        [HttpGet("{id}/tasks")]
+        public async Task<IActionResult> GetTasksForUser(int id)
+        {
+            var user = await _context.Users
+                .AsNoTracking()
+                .Include(u => u.Tasks)
+                .ThenInclude(t => t.TaskCategories)
+                .ThenInclude(tc => tc.Category)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var tasks = user.Tasks.Select(t => new
+            {
+                t.Id,
+                t.Title,
+                t.IsCompleted,
+                t.Description,
+                t.Priority,
+                t.DueDate,
+                Categories = t.TaskCategories.Select(tc => new { tc.CategoryId, tc.Category.Name })
+            });
+
+            return Ok(tasks);
         }
 
         [HttpPost]
@@ -67,35 +99,6 @@ namespace TodoApi.Controllers
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
             return NoContent();
-        }
-        
-        [HttpGet("{id}/tasks")]
-        public async Task<IActionResult> GetTasksForUser(int id)
-        {
-            var user = await _context.Users
-                .AsNoTracking()
-                .Include(u => u.Tasks)
-                .ThenInclude(t => t.TaskCategories)
-                .ThenInclude(tc => tc.Category)
-                .FirstOrDefaultAsync(u => u.Id == id);
-
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            var tasks = user.Tasks.Select(t => new
-            {
-                t.Id,
-                t.Title,
-                t.IsCompleted,
-                t.Description,
-                t.Priority,
-                t.DueDate,
-                Categories = t.TaskCategories.Select(tc => new { tc.CategoryId, tc.Category.Name })
-            });
-
-            return Ok(tasks);
         }
     }
 }

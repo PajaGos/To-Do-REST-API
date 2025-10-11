@@ -22,7 +22,8 @@ public class UsersControllerTests : IAsyncLifetime
 
         // Assert
         var actionResult = Assert.IsType<ActionResult<IEnumerable<User>>>(result);
-        var returnValue = Assert.IsType<List<User>>(actionResult.Value);
+        var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
+        var returnValue = Assert.IsType<List<User>>(okResult.Value);
         Assert.Equal(users.Count, returnValue.Count);
     }
     
@@ -39,7 +40,8 @@ public class UsersControllerTests : IAsyncLifetime
 
         // Assert
         var actionResult = Assert.IsType<ActionResult<User>>(result);
-        var returnValue = Assert.IsType<User>(actionResult.Value);
+        var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
+        var returnValue = Assert.IsType<User>(okResult.Value);
         Assert.Equal(expectedTask, returnValue);
     }
     

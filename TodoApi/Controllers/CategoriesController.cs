@@ -23,16 +23,7 @@ public class CategoriesController : ControllerBase
 
         return Ok(categories);
     }
-
-    [HttpPost]
-    public async Task<IActionResult> Create(Category category)
-    {
-        _context.Categories.Add(category);
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetById), new { id = category.Id }, category);
-    }
-
+    
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
@@ -46,6 +37,42 @@ public class CategoriesController : ControllerBase
         }
         
         return Ok(category);
+    }
+    
+    [HttpGet("{id}/tasks")]
+    public async Task<IActionResult> GetTasksForCategory(int id)
+    {
+        var category = await _context.Categories
+            .AsNoTracking()
+            .Include(c => c.TaskCategories)
+            .ThenInclude(tc => tc.Task)
+            .FirstOrDefaultAsync(c => c.Id == id);
+
+        if (category == null)
+        {
+            return NotFound();
+        }
+
+        var tasks = category.TaskCategories.Select(tc => new
+        {
+            tc.Task.Id,
+            tc.Task.Title,
+            tc.Task.IsCompleted,
+            tc.Task.Description,
+            tc.Task.Priority,
+            tc.Task.DueDate,
+        });
+
+        return Ok(tasks);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create(Category category)
+    {
+        _context.Categories.Add(category);
+        await _context.SaveChangesAsync();
+
+        return CreatedAtAction(nameof(GetById), new { id = category.Id }, category);
     }
     
     [HttpPut("{id}")]
@@ -81,31 +108,4 @@ public class CategoriesController : ControllerBase
         await _context.SaveChangesAsync();
         return NoContent();
     }
-    
-    [HttpGet("{id}/tasks")]
-    public async Task<IActionResult> GetTasksForCategory(int id)
-    {
-        var category = await _context.Categories
-            .Include(c => c.TaskCategories)
-            .ThenInclude(tc => tc.Task)
-            .FirstOrDefaultAsync(c => c.Id == id);
-
-        if (category == null)
-        {
-            return NotFound();
-        }
-
-        var tasks = category.TaskCategories.Select(tc => new
-        {
-            tc.Task.Id,
-            tc.Task.Title,
-            tc.Task.IsCompleted,
-            tc.Task.Description,
-            tc.Task.Priority,
-            tc.Task.DueDate,
-        });
-
-        return Ok(tasks);
-    }
-
 }
