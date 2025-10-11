@@ -15,8 +15,6 @@
 
         public List<TaskCategory> TaskCategories { get; set; } = new List<TaskCategory>();
         
-        public List<TaskCategory> TaskCategories { get; set; }
-        
         public void UpdateFrom(TaskItem other)
         {
             if (other == null)
