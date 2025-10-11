@@ -16,7 +16,6 @@ namespace TodoApi.Controllers
             _context = context;
         }
         
-        // GET: api/tasks/{taskId}/categories
         [HttpGet]
         public async Task<IActionResult> GetCategoriesForTask(int taskId)
         {
@@ -39,9 +38,8 @@ namespace TodoApi.Controllers
             }));
         }
 
-        // DELETE: api/tasks/{taskId}/categories
         [HttpPost("{id}")]
-        public async Task<IActionResult> AssignCategory(int taskId, [FromBody] int categoryId)
+        public async Task<IActionResult> AssignCategory(int taskId, int categoryId)
         {
             var exists = await _context.TaskCategories
                 .AnyAsync(tc => tc.TaskId == taskId && tc.CategoryId == categoryId);
@@ -62,8 +60,7 @@ namespace TodoApi.Controllers
             return NoContent();
         }
 
-        // DELETE: api/tasks/{taskId}/categories/{categoryId}
-        [HttpDelete("{categoryId}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> RemoveCategory(int taskId, int categoryId)
         {
             var link = await _context.TaskCategories
