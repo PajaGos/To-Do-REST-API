@@ -4,7 +4,7 @@
     {
         public int Id { get; set; }
         public string Title { get; set; }
-        public bool Done { get; set; }
+        public bool IsCompleted { get; set; }
         public string Description { get; set; }
         public PriorityLevel Priority { get; set; } // enum Low, Medium, High
         public DateTime DueDate { get; set; }
@@ -23,7 +23,7 @@
             }
             
             Title = other.Title;
-            Done = other.Done;
+            IsCompleted = other.IsCompleted;
             Description = other.Description;
             Priority = other.Priority;
             DueDate = other.DueDate;

@@ -62,7 +62,7 @@ public class TasksControllerTests : IAsyncLifetime
     public async Task Create_ReturnsCreatedTask_WhenTaskIsCreated()
     {
         // Arrange
-        var taskItem = new TaskItem() { Id = 150, Title = "Update Readme", Done = false };
+        var taskItem = new TaskItem() { Id = 150, Title = "Update Readme", IsCompleted = false };
         var target = new TasksController(context);
 
         // Act
@@ -82,11 +82,11 @@ public class TasksControllerTests : IAsyncLifetime
         int id = 150;
         string title = "Update Readme";
         bool done = false;
-        var expectedTaskItemState = new TaskItem() { Id = id, Title = title, Done = done };
+        var expectedTaskItemState = new TaskItem() { Id = id, Title = title, IsCompleted = done };
         var target = new TasksController(context);
 
         // Act
-        var result = await target.Create(new TaskItem() { Id = id, Title = title, Done = done });
+        var result = await target.Create(new TaskItem() { Id = id, Title = title, IsCompleted = done });
 
         // Assert
         var actionResult = Assert.IsType<ActionResult<TaskItem>>(result);
@@ -105,7 +105,7 @@ public class TasksControllerTests : IAsyncLifetime
         {
             Id = originalTaskItem.Id, 
             Title = originalTaskItem.Title, 
-            Done = !originalTaskItem.Done
+            IsCompleted = !originalTaskItem.IsCompleted
         };
         var target = new TasksController(context);
 
@@ -124,7 +124,7 @@ public class TasksControllerTests : IAsyncLifetime
         {
             Id = 150, 
             Title = "NonExisting", 
-            Done = false
+            IsCompleted = false
         };
         var target = new TasksController(context);
 
@@ -145,7 +145,7 @@ public class TasksControllerTests : IAsyncLifetime
         {
             Id = originalTaskItem.Id + 1, 
             Title = originalTaskItem.Title, 
-            Done = !originalTaskItem.Done
+            IsCompleted = !originalTaskItem.IsCompleted
         };
         
         var target = new TasksController(context);
@@ -188,9 +188,9 @@ public class TasksControllerTests : IAsyncLifetime
     
     private readonly List<TaskItem> tasks = new List<TaskItem>
     {
-        new TaskItem { Id = 1, Title = "Test1", Done = false },
-        new TaskItem { Id = 2, Title = "Test2", Done = true },
-        new TaskItem { Id = 3, Title = "Test3", Done = false }
+        new TaskItem { Id = 1, Title = "Test1", IsCompleted = false },
+        new TaskItem { Id = 2, Title = "Test2", IsCompleted = true },
+        new TaskItem { Id = 3, Title = "Test3", IsCompleted = false }
     };
     
     public async Task InitializeAsync()
