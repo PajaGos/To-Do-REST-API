@@ -15,14 +15,39 @@ namespace TodoApi.Controllers
         {
             _context = context;
         }
-
+        
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TaskItem>>> GetAll() => await _context.Tasks.ToListAsync();
+        public async Task<ActionResult<IEnumerable<TaskItem>>> Get([FromQuery] int? userId, [FromQuery] string? category)
+        {
+            var query = _context.Tasks
+                .AsNoTracking()
+                .Include(t => t.TaskCategories)
+                .ThenInclude(tc => tc.Category)
+                .AsQueryable();
+
+            if (userId.HasValue)
+            {
+                query = query.Where(t => t.UserId == userId.Value);
+            }
+
+            if (!string.IsNullOrEmpty(category))
+            {
+                query = query.Where(t => t.TaskCategories.Any(tc => tc.Category.Name == category));
+            }
+
+            var tasks = await query.ToListAsync();
+            return tasks;
+        }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<TaskItem>> GetById(int id)
         {
-            var task = await _context.Tasks.FindAsync(id);
+            var task = await _context.Tasks
+                .AsNoTracking()
+                .Include(t => t.TaskCategories)
+                .ThenInclude(tc => tc.Category)
+                .FirstOrDefaultAsync(t => t.Id == id);
+            
             return task == null ? NotFound() : task;
         }
 
@@ -42,7 +67,10 @@ namespace TodoApi.Controllers
                 return BadRequest();
             }
             
-            var existingTask = await _context.Tasks.FirstOrDefaultAsync(t => t.Id == id);
+            var existingTask = await _context.Tasks
+                .Include(t => t.TaskCategories)
+                .FirstOrDefaultAsync(t => t.Id == id);
+            
             if (existingTask == null)
             {
                 return NotFound();

@@ -6,6 +6,7 @@ namespace TodoApi.Models
         public string UserName { get; set; }
         public string Email { get; set; }
         public DateTime CreatedAt { get; set; }
+        public List<TaskItem> Tasks { get; set; }
         
         public void UpdateFrom(User user)
         {
@@ -16,6 +17,7 @@ namespace TodoApi.Models
             
             UserName = user.UserName;
             Email = user.Email;
+            Tasks = user.Tasks;
         }
     }
 }

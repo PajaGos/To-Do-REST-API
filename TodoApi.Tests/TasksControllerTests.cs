@@ -10,6 +10,29 @@ namespace TodoApi.Tests;
 public class TasksControllerTests : IAsyncLifetime
 {
     private ToDoContext context;
+    private User testUser;
+    private List<TaskItem> tasks;
+    
+    public async Task InitializeAsync()
+    {
+        var options = new DbContextOptionsBuilder<ToDoContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString()) // InMemory provider, unique db for each test
+            .Options;      
+        
+        testUser = new User { Id = 1, UserName = "TestUser" , Email = "user@email.com"};
+    
+        tasks = new List<TaskItem>
+        {
+            new TaskItem { Id = 1, Title = "Test1", IsCompleted = false, DueDate = DateTime.MaxValue, User = testUser, UserId = testUser.Id},
+            new TaskItem { Id = 2, Title = "Test2", IsCompleted = true, DueDate = DateTime.MaxValue, User = testUser, UserId = testUser.Id},
+            new TaskItem { Id = 3, Title = "Test3", IsCompleted = false, DueDate = DateTime.MaxValue, User = testUser, UserId = testUser.Id},
+        };
+        
+        context = new ToDoContext(options);
+        context.Tasks.AddRange(tasks);
+        context.Users.Add(testUser);
+        await context.SaveChangesAsync();
+    }
 
     [Fact]
     public async Task GetAll_ReturnsAllAvailableTasks_WhenTasksArePresent()
@@ -18,7 +41,7 @@ public class TasksControllerTests : IAsyncLifetime
         var target = new TasksController(context);
         
         // Act
-        var result = await target.GetAll();
+        var result = await target.Get(null, null);
 
         // Assert
         var actionResult = Assert.IsType<ActionResult<IEnumerable<TaskItem>>>(result);
@@ -40,7 +63,7 @@ public class TasksControllerTests : IAsyncLifetime
         // Assert
         var actionResult = Assert.IsType<ActionResult<TaskItem>>(result);
         var returnValue = Assert.IsType<TaskItem>(actionResult.Value);
-        Assert.Equal(expectedTask, returnValue);
+        Assert.Equal(expectedTask.Id, returnValue.Id);
     }
     
         
@@ -62,7 +85,7 @@ public class TasksControllerTests : IAsyncLifetime
     public async Task Create_ReturnsCreatedTask_WhenTaskIsCreated()
     {
         // Arrange
-        var taskItem = new TaskItem() { Id = 150, Title = "Update Readme", Done = false };
+        var taskItem = new TaskItem() { Id = 150, Title = "Update Readme", IsCompleted = false };
         var target = new TasksController(context);
 
         // Act
@@ -82,11 +105,11 @@ public class TasksControllerTests : IAsyncLifetime
         int id = 150;
         string title = "Update Readme";
         bool done = false;
-        var expectedTaskItemState = new TaskItem() { Id = id, Title = title, Done = done };
+        var expectedTaskItemState = new TaskItem() { Id = id, Title = title, IsCompleted = done };
         var target = new TasksController(context);
 
         // Act
-        var result = await target.Create(new TaskItem() { Id = id, Title = title, Done = done });
+        var result = await target.Create(new TaskItem() { Id = id, Title = title, IsCompleted = done });
 
         // Assert
         var actionResult = Assert.IsType<ActionResult<TaskItem>>(result);
@@ -105,7 +128,7 @@ public class TasksControllerTests : IAsyncLifetime
         {
             Id = originalTaskItem.Id, 
             Title = originalTaskItem.Title, 
-            Done = !originalTaskItem.Done
+            IsCompleted = !originalTaskItem.IsCompleted
         };
         var target = new TasksController(context);
 
@@ -124,7 +147,7 @@ public class TasksControllerTests : IAsyncLifetime
         {
             Id = 150, 
             Title = "NonExisting", 
-            Done = false
+            IsCompleted = false
         };
         var target = new TasksController(context);
 
@@ -145,7 +168,7 @@ public class TasksControllerTests : IAsyncLifetime
         {
             Id = originalTaskItem.Id + 1, 
             Title = originalTaskItem.Title, 
-            Done = !originalTaskItem.Done
+            IsCompleted = !originalTaskItem.IsCompleted
         };
         
         var target = new TasksController(context);
@@ -184,24 +207,6 @@ public class TasksControllerTests : IAsyncLifetime
 
         // Assert
         Assert.IsType<NotFoundResult>(result);
-    }
-    
-    private readonly List<TaskItem> tasks = new List<TaskItem>
-    {
-        new TaskItem { Id = 1, Title = "Test1", Done = false },
-        new TaskItem { Id = 2, Title = "Test2", Done = true },
-        new TaskItem { Id = 3, Title = "Test3", Done = false }
-    };
-    
-    public async Task InitializeAsync()
-    {
-        var options = new DbContextOptionsBuilder<ToDoContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString()) // InMemory provider, unique db for each test
-            .Options;        
-        
-        context = new ToDoContext(options);
-        context.Tasks.AddRange(tasks);
-        await context.SaveChangesAsync();
     }
     
     public Task DisposeAsync()

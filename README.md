@@ -33,15 +33,17 @@ To-Do-REST-API/
 │
 ├─ .gitignore
 ├─ README.md
+├─ TODO.md
 ├─ docker-compose.yml
 ├─ Dockerfile
 ├─ TodoApi.sln
 ├─ data/                # runtime SQLite DB (not committed)
 └─ TodoApi/
     ├─ Controllers/
-    ├─ Models/
     ├─ Data/
+    │   └─ Configurations/
     │   └─ Migrations/
+    ├─ Models/
     ├─ Program.cs
     ├─ appsettings.json
     ├─ appsettings.Development.json
@@ -105,23 +107,43 @@ docker compose up --build
 * Swagger UI is available at `/swagger/index.html`
 * Tasks Endpoints:
 
-| Method | Endpoint    | Description          |
-| ------ |-------------| -------------------- |
-| GET    | /tasks      | Get all tasks        |
-| GET    | /tasks/{id} | Get task by ID       |
-| POST   | /tasks/     | Create new task      |
-| PUT    | /tasks/{id} | Update existing task |
-| DELETE | /tasks/{id} | Delete task          |
+| Method | Endpoint                 | Description                          |
+| ------ |--------------------------|--------------------------------------|
+| GET    | /tasks?userId=&category= | Filter tasks by user and/or category |
+| GET    | /tasks/{id}              | Get task by ID                       |
+| POST   | /tasks/                  | Create new task                      |
+| PUT    | /tasks/{id}              | Update existing task                 |
+| DELETE | /tasks/{id}              | Delete task                          |
 
 * User Endpoints:
 
-| Method | Endpoint    | Description          |
-| ------ |-------------| -------------------- |
-| GET    | /users      | Get all users        |
-| GET    | /users/{id} | Get user by ID       |
-| POST   | /users/     | Create new user      |
-| PUT    | /users/{id} | Update existing user |
-| DELETE | /users/{id} | Delete user          |
+| Method | Endpoint          | Description              |
+|--------|-------------------|--------------------------|
+| GET    | /users            | Get all users            |
+| GET    | /users/{id}       | Get user by ID           |
+| GET    | /users/{id}/tasks | get all tasks for a user |
+| POST   | /users/           | Create new user          |
+| PUT    | /users/{id}       | Update existing user     |
+| DELETE | /users/{id}       | Delete user              |
+
+* Category Endpoints:
+
+| Method | Endpoint               | Description                 |
+|--------|------------------------|-----------------------------|
+| GET    | /categories            | Get all categories          |
+| GET    | /categories/{id}       | Get category by ID          |
+| GET    | /categories/{id}/tasks | Get all tasks in a category |
+| POST   | /categories/           | Create new category         |
+| PUT    | /categories/{id}       | Update existing category    |
+| DELETE | /categories/{id}       | Delete category             |
+
+* Task Category Endpoints
+
+| Method | Endpoint                     | Description                         |
+|--------|------------------------------|-------------------------------------|
+| GET    | /tasks/{id}/categories       | Get all categories assigned to task |
+| POST   | /tasks/{id}/categories/{id}  | Assign category to existing task    |
+| DELETE | /tasks/{id}/categories/{id}  | Remove category from existing task  |
 
 ---
 
