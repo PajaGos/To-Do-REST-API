@@ -4,7 +4,6 @@ using TodoApi.Data;
 using TodoApi.DTOs.Tasks;
 using TodoApi.DTOs.Users;
 using TodoApi.Mappers;
-using TodoApi.Models;
 
 namespace TodoApi.Controllers
 {
@@ -33,7 +32,7 @@ namespace TodoApi.Controllers
         }
         
         [HttpGet("{id}/tasks")]
-        public async Task<IActionResult> GetTasksForUser(int id)
+        public async Task<ActionResult<IEnumerable<TaskItemDto>>> GetTasksForUser(int id)
         {
             var user = await _context.Users
                 .AsNoTracking()
@@ -47,7 +46,7 @@ namespace TodoApi.Controllers
                 return NotFound();
             }
 
-            var tasks = user.Tasks.Select(t => t.ToDto());
+            IEnumerable<TaskItemDto> tasks = user.Tasks.Select(t => t.ToDto());
             return Ok(tasks);
         }
 
