@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TodoApi.Data;
 using TodoApi.DTOs.Category;
+using TodoApi.DTOs.TaskCategory;
+using TodoApi.DTOs.Tasks;
 using TodoApi.Mappers;
 
 namespace TodoApi.Controllers;
@@ -18,7 +20,7 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<ActionResult<IEnumerable<CategoryDto>>> GetAll()
     {
         var categories = await _context.Categories
             .AsNoTracking()
@@ -29,7 +31,7 @@ public class CategoriesController : ControllerBase
     }
     
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(int id)
+    public async Task<ActionResult<CategoryDto>> GetById(int id)
     {
         var category = await _context.Categories
             .AsNoTracking()
@@ -44,12 +46,13 @@ public class CategoriesController : ControllerBase
     }
     
     [HttpGet("{id}/tasks")]
-    public async Task<IActionResult> GetTasksForCategory(int id)
+    public async Task<ActionResult<IEnumerable<TaskItemDto>>> GetTasksForCategory(int id)
     {
         var category = await _context.Categories
             .AsNoTracking()
             .Include(c => c.TaskCategories)
             .ThenInclude(tc => tc.Task)
+            .ThenInclude(task => task.User)
             .FirstOrDefaultAsync(c => c.Id == id);
 
         if (category == null)
@@ -57,12 +60,12 @@ public class CategoriesController : ControllerBase
             return NotFound();
         }
 
-        var tasks = category.TaskCategories.Select(tc => tc.ToDto());
+        var tasks = category.TaskCategories.Select(tc => tc.Task.ToDto());
         return Ok(tasks);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(CategoryCreateDto dto)
+    public async Task<ActionResult<CategoryDto>> Create(CategoryCreateDto dto)
     {
         // Check that the user exists
         var userExists = await _context.Users.AnyAsync(u => u.Id == dto.UserId);
@@ -87,8 +90,8 @@ public class CategoriesController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, CategoryUpdateDto dto)
     {
-        var categoryExists = await _context.Categories.AnyAsync(u => u.Name == dto.Name);
-        if (!categoryExists)
+        var categoryExists = await _context.Categories.AnyAsync(u => u.Id != id && u.Name == dto.Name);
+        if (categoryExists)
         {
             return Conflict($"Category with name {dto.Name} already exists.");
         }
@@ -108,13 +111,13 @@ public class CategoriesController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var task = await _context.Tasks.FindAsync(id);
-        if (task == null)
+        var category = await _context.Categories.FindAsync(id);
+        if (category == null)
         {
             return NotFound();
         }
             
-        _context.Tasks.Remove(task);
+        _context.Categories.Remove(category);
         await _context.SaveChangesAsync();
         return NoContent();
     }
