@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TodoApi.Data;
+using TodoApi.DTOs.Category;
 using TodoApi.Mappers;
 using TodoApi.Models;
 
@@ -18,7 +19,7 @@ namespace TodoApi.Controllers
         }
         
         [HttpGet]
-        public async Task<IActionResult> GetCategoriesForTask(int taskId)
+        public async Task<ActionResult<IEnumerable<CategoryDto>>> GetCategoriesForTask(int taskId)
         {
             var task = await _context.Tasks
                 .AsNoTracking() // change tracker won't track the entity since it will be read only (performance optimization)
@@ -37,6 +38,24 @@ namespace TodoApi.Controllers
         [HttpPost("{id}")]
         public async Task<IActionResult> AssignCategory(int taskId, int id)
         {
+            var task = await _context.Tasks
+                .AsNoTracking() // change tracker won't track the entity since it will be read only (performance optimization)
+                .FirstOrDefaultAsync(t => t.Id == taskId);
+
+            if (task == null)
+            {
+                return BadRequest($"Task with id {taskId} does not exist.");
+            }
+            
+            var category = await _context.Categories
+                .AsNoTracking() // change tracker won't track the entity since it will be read only (performance optimization)
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (category == null)
+            {
+                return BadRequest($"Category with id {id} does not exist.");
+            }
+            
             var exists = await _context.TaskCategories
                 .AnyAsync(tc => tc.TaskId == taskId && tc.CategoryId == id);
 
