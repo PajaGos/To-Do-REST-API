@@ -3,7 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using TodoApi.Data;
 using TodoApi.DTOs.Category;
 using TodoApi.Mappers;
-using TodoApi.Models;
+
+namespace TodoApi.Controllers;
 
 [ApiController]
 [Route("api/categories")]
