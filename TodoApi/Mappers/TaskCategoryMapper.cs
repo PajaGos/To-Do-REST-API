@@ -13,14 +13,5 @@ namespace TodoApi.Mappers
                 Category = taskCategory.Category.ToDto(),
             };
         }
-
-        public static TaskCategory ToEntity(this TaskCategoryCreateDto dto)
-        {
-            return new TaskCategory
-            {
-               CategoryId = dto.CategoryId,
-               TaskId = dto.TaskId,
-            };
-        }
     }
 }
