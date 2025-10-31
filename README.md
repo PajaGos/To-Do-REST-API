@@ -48,6 +48,9 @@ To-Do-REST-API/
     ├─ appsettings.json
     ├─ appsettings.Development.json
     └─ TodoApi.csproj
+└─ TodoApi.Tests/
+    ├─ ControllerTests/
+    └─ DtoValidationTests
 ```
 
 ---

@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TodoApi.Data;
-using TodoApi.Models;
+using TodoApi.DTOs.Tasks;
+using TodoApi.DTOs.Users;
+using TodoApi.Mappers;
 
 namespace TodoApi.Controllers
 {
@@ -17,20 +19,20 @@ namespace TodoApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetAll()
+        public async Task<ActionResult<IEnumerable<UserDto>>> GetAll()
         {
-            return Ok(await _context.Users.AsNoTracking().ToListAsync());
+            return Ok(await _context.Users.AsNoTracking().Select(x => x.ToDto()).ToListAsync());
         }
         
         [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetById(int id)
+        public async Task<ActionResult<UserDto>> GetById(int id)
         {
             var user = await _context.Users.FindAsync(id);
-            return user == null ? NotFound() : Ok(user);
+            return user == null ? NotFound() : Ok(user.ToDto());
         }
         
         [HttpGet("{id}/tasks")]
-        public async Task<IActionResult> GetTasksForUser(int id)
+        public async Task<ActionResult<IEnumerable<TaskItemDto>>> GetTasksForUser(int id)
         {
             var user = await _context.Users
                 .AsNoTracking()
@@ -44,44 +46,49 @@ namespace TodoApi.Controllers
                 return NotFound();
             }
 
-            var tasks = user.Tasks.Select(t => new
-            {
-                t.Id,
-                t.Title,
-                t.IsCompleted,
-                t.Description,
-                t.Priority,
-                t.DueDate,
-                Categories = t.TaskCategories.Select(tc => new { tc.CategoryId, tc.Category.Name })
-            });
-
+            IEnumerable<TaskItemDto> tasks = user.Tasks.Select(t => t.ToDto());
             return Ok(tasks);
         }
 
         [HttpPost]
-        public async Task<ActionResult<User>> Create(User user)
+        public async Task<ActionResult<UserDto>> Create(UserCreateDto dto)
         {
-            _context.Users.Add(user);
+            var user = await _context.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.UserName == dto.UserName);
+
+            if (user != null)
+            {
+                return Conflict($"Username {dto.UserName} already exists.");
+            }
+            
+            var userEmail = await _context.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Email == dto.Email);
+
+            if (userEmail != null)
+            {
+                return Conflict($"Username with the same email {dto.Email} already exists.");
+            }
+
+            var entity = dto.ToEntity();
+            _context.Users.Add(entity);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetById), new { id = user.Id }, user);
+            return CreatedAtAction(nameof(GetById), new { id = entity.Id }, entity.ToDto());
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, User user)
+        public async Task<IActionResult> Update(int id, UserUpdateDto dto)
         {
-            if (id != user.Id)
-            {
-                return BadRequest();
-            }
-            
-            User? existingUser = await _context.Users.FirstOrDefaultAsync(t => t.Id == id);
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Id == id);
 
-            if (existingUser == null)
+            if (user == null)
             {
                 return NotFound();
             }
 
-            existingUser.UpdateFrom(user);
+            user.UpdateFromDto(dto);
             await _context.SaveChangesAsync();
 
             return NoContent();

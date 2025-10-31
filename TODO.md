@@ -13,7 +13,7 @@ This document tracks the planned tasks and enhancements for the TODO API project
     - `TaskItem`
     - `Category`
     - `TaskCategory` (explicit join table)
-- [] Add DTO classes for all entities:
+- [x] Add DTO classes for all entities:
     - `UserDto`
     - `TaskItemDto`
     - `CategoryDto`
@@ -62,15 +62,15 @@ This document tracks the planned tasks and enhancements for the TODO API project
 - [ ] Add paging & sorting for GET `/tasks`
 - [ ] Add search by title or due date
 - [ ] Add priority filter for tasks
-- [ ] Add DTO validation (e.g., title required, due date in future)
+- [x] Add DTO validation (e.g., title required, due date in future)
 - [x] Enable automatic EF Core migrations on app startup
 
 ---
 
 ## 4️⃣ Testing / DevOps
 
-- [ ] Unit tests for controllers (mock DbContext or InMemory DB)
-- [ ] Integration tests with SQLite in-memory DB
+- [x] Unit tests for controllers (mock DbContext or InMemory DB)
+- [x] Integration tests with SQLite in-memory DB
 - [ ] Setup Swagger for API documentation
 - [x] Add detailed README with example requests/responses
 

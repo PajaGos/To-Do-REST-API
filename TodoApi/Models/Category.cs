@@ -10,15 +10,5 @@ namespace TodoApi.Models
         public User User { get; set; }
 
         public List<TaskCategory> TaskCategories { get; set; }
-        
-        public void UpdateFrom(Category updateCategory)
-        {
-            if (updateCategory == null)
-            {
-                return;
-            }
-            
-            Name = updateCategory.Name;
-        }
     }
 }
