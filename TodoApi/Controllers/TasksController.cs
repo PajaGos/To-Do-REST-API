@@ -70,6 +70,11 @@ namespace TodoApi.Controllers
                 var existingCategories = await _context.Categories
                     .Where(c => dto.CategoryIds.Contains(c.Id))
                     .ToListAsync();
+                
+                if(existingCategories.Count != dto.CategoryIds.Count)
+                {
+                    return BadRequest("One or more provided category IDs do not exist.");
+                }
 
                 task.TaskCategories = existingCategories
                     .Select(c => new TaskCategory
