@@ -43,6 +43,13 @@ To-Do-REST-API/
     ├─ Data/
     │   └─ Configurations/
     │   └─ Migrations/
+    ├─ Dtos/
+    │   └─ Category/
+    │   └─ Common/
+    │   └─ TaskCategory/
+    │   └─ Tasks/
+    │   └─ Users/
+    ├─ Mappers/
     ├─ Models/
     ├─ Program.cs
     ├─ appsettings.json
@@ -110,13 +117,13 @@ docker compose up --build
 * Swagger UI is available at `/swagger/index.html`
 * Tasks Endpoints:
 
-| Method | Endpoint                 | Description                          |
-| ------ |--------------------------|--------------------------------------|
-| GET    | /tasks?userId=&category= | Filter tasks by user and/or category |
-| GET    | /tasks/{id}              | Get task by ID                       |
-| POST   | /tasks/                  | Create new task                      |
-| PUT    | /tasks/{id}              | Update existing task                 |
-| DELETE | /tasks/{id}              | Delete task                          |
+| Method | Endpoint                                                                           | Description                                                         |
+| ------ |------------------------------------------------------------------------------------|---------------------------------------------------------------------|
+| GET    | tasks?userId=1&category=Work&pageNumber=1&pageSize=10&sortBy=dueDate&sortOrder=asc | Filter tasks by user/category, Sort tasks by Title/Priority/Duedate |
+| GET    | /tasks/{id}                                                                        | Get task by ID                                                      |
+| POST   | /tasks/                                                                            | Create new task                                                     |
+| PUT    | /tasks/{id}                                                                        | Update existing task                                                |
+| DELETE | /tasks/{id}                                                                        | Delete task                                                         |
 
 * User Endpoints:
 
