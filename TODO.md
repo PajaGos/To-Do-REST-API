@@ -59,7 +59,7 @@ This document tracks the planned tasks and enhancements for the TODO API project
 
 ## 3️⃣ Enhancements
 
-- [ ] Add paging & sorting for GET `/tasks`
+- [x] Add paging & sorting for GET `/tasks`
 - [ ] Add search by title or due date
 - [ ] Add priority filter for tasks
 - [x] Add DTO validation (e.g., title required, due date in future)
@@ -71,7 +71,7 @@ This document tracks the planned tasks and enhancements for the TODO API project
 
 - [x] Unit tests for controllers (mock DbContext or InMemory DB)
 - [x] Integration tests with SQLite in-memory DB
-- [ ] Setup Swagger for API documentation
+- [x] Setup Swagger for API documentation
 - [x] Add detailed README with example requests/responses
 
 ---
