@@ -124,6 +124,101 @@ public class TasksControllerTests : IAsyncLifetime
         Assert.Equal(userTasks.Count, returnValue.Items.Count());
     }
     
+    [Theory]
+    [InlineData("title", "asc")]
+    [InlineData("title", "desc")]
+    public async Task GetAll_ReturnsSortedTasksByTitle_WhenSortByTitleIsSpecified(string sortBy, string sortOrder)
+    {
+        // Arrange
+        var userId = users.First().Id;
+        var userTasks = tasks.Where(t => t.UserId == userId).ToList();
+        userTasks = sortOrder == "asc" 
+            ? userTasks.OrderBy(x => x.Title).ToList() 
+            : userTasks.OrderByDescending(x => x.Title).ToList();
+        
+        var target = new TasksController(context);
+        
+        // Act
+        var result = await target.Get(userId, null, sortBy: sortBy, sortOrder: sortOrder);
+
+        // Assert
+        var actionResult = Assert.IsType<ActionResult<PagedResult<TaskItemDto>>>(result);
+        var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
+        var returnValue = Assert.IsType<PagedResult<TaskItemDto>>(okResult.Value);
+        Assert.Equivalent(userTasks.Select(x => x.Title), returnValue.Items.Select(x => x.Title));
+    }
+    
+    [Theory]
+    [InlineData("duedate", "asc")]
+    [InlineData("duedate", "desc")]
+    public async Task GetAll_ReturnsSortedTasksByDueDate_WhenSortByDueDateIsSpecified(string sortBy, string sortOrder)
+    {
+        // Arrange
+        var userId = users.First().Id;
+        var userTasks = tasks.Where(t => t.UserId == userId).ToList();
+        userTasks = sortOrder == "asc" 
+            ? userTasks.OrderBy(x => x.DueDate).ToList() 
+            : userTasks.OrderByDescending(x => x.DueDate).ToList();
+        
+        var target = new TasksController(context);
+        
+        // Act
+        var result = await target.Get(userId, null, sortBy: sortBy, sortOrder: sortOrder);
+
+        // Assert
+        var actionResult = Assert.IsType<ActionResult<PagedResult<TaskItemDto>>>(result);
+        var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
+        var returnValue = Assert.IsType<PagedResult<TaskItemDto>>(okResult.Value);
+        Assert.Equivalent(userTasks.Select(x => x.DueDate), returnValue.Items.Select(x => x.DueDate));
+    }
+    
+    [Theory]
+    [InlineData("priority", "asc")]
+    [InlineData("priority", "desc")]
+    public async Task GetAll_ReturnsSortedTasksByPriority_WhenSortPriorityIsSpecified(string sortBy, string sortOrder)
+    {
+        // Arrange
+        var userId = users.First().Id;
+        var userTasks = tasks.Where(t => t.UserId == userId).ToList();
+        userTasks = sortOrder == "asc" 
+            ? userTasks.OrderBy(x => x.Priority).ToList() 
+            : userTasks.OrderByDescending(x => x.Priority).ToList();
+        
+        var target = new TasksController(context);
+        
+        // Act
+        var result = await target.Get(userId, null, sortBy: sortBy, sortOrder: sortOrder);
+
+        // Assert
+        var actionResult = Assert.IsType<ActionResult<PagedResult<TaskItemDto>>>(result);
+        var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
+        var returnValue = Assert.IsType<PagedResult<TaskItemDto>>(okResult.Value);
+        Assert.Equivalent(userTasks.Select(x => x.Priority), returnValue.Items.Select(x => x.Priority));
+    }
+    
+    [Theory]
+    [InlineData(1, 2)]
+    [InlineData(2, 2)]
+    [InlineData(2, 3)]
+    public async Task GetAll_ReturnsPagedTasks_WhenPagingIsDefined(int pageNumber, int pageSize)
+    {
+        // Arrange
+        int skipCount = pageSize * (pageNumber - 1); 
+        var userId = users.First().Id;
+        var userTasks = tasks.Where(t => t.UserId == userId).Skip(skipCount).Take(pageSize).ToList();
+        
+        var target = new TasksController(context);
+        
+        // Act
+        var result = await target.Get(userId, null, pageNumber: pageNumber, pageSize: pageSize);
+
+        // Assert
+        var actionResult = Assert.IsType<ActionResult<PagedResult<TaskItemDto>>>(result);
+        var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
+        var returnValue = Assert.IsType<PagedResult<TaskItemDto>>(okResult.Value);
+        Assert.Equivalent(userTasks.Select(x => x.Title), returnValue.Items.Select(x => x.Title));
+    }
+    
     [Fact]
     public async Task GetById_ReturnsExpectedTask_WhenTaskExists()
     {
