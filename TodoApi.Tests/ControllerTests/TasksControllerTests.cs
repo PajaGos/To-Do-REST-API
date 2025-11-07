@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TodoApi.Controllers;
 using TodoApi.Data;
+using TodoApi.DTOs.Common;
 using TodoApi.DTOs.Tasks;
 using TodoApi.Models;
 using Xunit;
@@ -78,10 +79,10 @@ public class TasksControllerTests : IAsyncLifetime
         var result = await target.Get(null, null);
 
         // Assert
-        var actionResult = Assert.IsType<ActionResult<IEnumerable<TaskItemDto>>>(result);
+        var actionResult = Assert.IsType<ActionResult<PagedResult<TaskItemDto>>>(result);
         var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
-        var returnValue = Assert.IsType<List<TaskItemDto>>(okResult.Value);
-        Assert.Equal(tasks.Count, returnValue.Count);
+        var returnValue = Assert.IsType<PagedResult<TaskItemDto>>(okResult.Value);
+        Assert.Equal(tasks.Count, returnValue.Items.Count());
     }
     
     [Fact]
@@ -99,10 +100,10 @@ public class TasksControllerTests : IAsyncLifetime
         var result = await target.Get(userId, category.Name);
 
         // Assert
-        var actionResult = Assert.IsType<ActionResult<IEnumerable<TaskItemDto>>>(result);
+        var actionResult = Assert.IsType<ActionResult<PagedResult<TaskItemDto>>>(result);
         var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
-        var returnValue = Assert.IsType<List<TaskItemDto>>(okResult.Value);
-        Assert.Equal(filteredUserTasks.Count, returnValue.Count);
+        var returnValue = Assert.IsType<PagedResult<TaskItemDto>>(okResult.Value);
+        Assert.Equal(filteredUserTasks.Count, returnValue.Items.Count());
     }
     
     [Fact]
@@ -117,10 +118,10 @@ public class TasksControllerTests : IAsyncLifetime
         var result = await target.Get(userId, null);
 
         // Assert
-        var actionResult = Assert.IsType<ActionResult<IEnumerable<TaskItemDto>>>(result);
+        var actionResult = Assert.IsType<ActionResult<PagedResult<TaskItemDto>>>(result);
         var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
-        var returnValue = Assert.IsType<List<TaskItemDto>>(okResult.Value);
-        Assert.Equal(userTasks.Count, returnValue.Count);
+        var returnValue = Assert.IsType<PagedResult<TaskItemDto>>(okResult.Value);
+        Assert.Equal(userTasks.Count, returnValue.Items.Count());
     }
     
     [Fact]
